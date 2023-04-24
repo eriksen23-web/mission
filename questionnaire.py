@@ -6,13 +6,12 @@ class Question:
         self.choix = choix
         self.bonne_reponse = bonne_reponse
 
-    def FromJsonData(data):
-
-        choix = [i[0] for i in data['choix'] ]
-        bonne_reponse = [i[0] for i in data['choix'] if i[1]]
+    def from_json_data(data):
+        choix = [i[0] for i in data["choix"]]
+        bonne_reponse = [i[0] for i in data["choix"] if i[1]]
         if len(bonne_reponse) != 1:
             return None
-        q = Question(data['titre'], choix , bonne_reponse[0])
+        q = Question(data["titre"], choix, bonne_reponse[0])
         return q
 
     def poser(self):
@@ -24,7 +23,7 @@ class Question:
         print()
         resultat_response_correcte = False
         reponse_int = Question.demander_reponse_numerique_utlisateur(1, len(self.choix))
-        if self.choix[(reponse_int-1)] == self.bonne_reponse:
+        if self.choix[reponse_int-1].lower() == self.bonne_reponse.lower():
             print("Bonne réponse")
             resultat_response_correcte = True
         else:
@@ -46,28 +45,45 @@ class Question:
         return Question.demander_reponse_numerique_utlisateur(min, max)
     
 class Questionnaire:
-    def __init__(self, questions):
+    def __init__(self, questions, categorie, titre, difficulte):
         self.questions = questions
+        self.categorie = categorie
+        self.titre = titre
+        self.difficulte = difficulte
+
+    def from_json_data(data):
+        questionnaire_data_questions =  data["questions"]
+        questions = [Question.from_json_data(i) for i in questionnaire_data_questions]
+
+        return Questionnaire(questions, data["categorie"], data["titre"], data["difficulte"])
+
 
     def lancer(self):
         score = 0
+
+        print("-----")
+        print("QUESTIONNAIRE : " + self.titre)
+        print("  Categorie : " + self.categorie)
+        print("  Difficulte : " + self.difficulte)
+        print("  Nombre de questions : " + str(len(self.questions)))
+        print("-----")
         for question in self.questions:
             if question.poser():
                 score += 1
         print("Score final :", score, "sur", len(self.questions))
         return score
 
-#Charger un fichier JSON
+
+# Charger un fichier JSON
 filename = "cinema_starwars_debutant.json"
 file = open(filename, "r")
 json_data = file.read()
 file.close()
+questionnaire_data = json.loads(json_data)
 
-Questionnaire_data = json.loads(json_data) #  On transforme le fichier json en un dictionnaire python(déserialiser)
 
-Questionnaire_data_question = Questionnaire_data["questions"]
+Questionnaire.from_json_data(questionnaire_data).lancer()
 
-q = Question.FromJsonData(Questionnaire_data_question[0])
-q.poser()
+print()
 
 
