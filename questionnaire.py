@@ -1,4 +1,5 @@
 import json
+import os
 
 class Question:
     def __init__(self, titre, choix, bonne_reponse):
@@ -81,7 +82,7 @@ json_data = file.read()
 file.close()
 questionnaire_data = json.loads(json_data)
 
-
+os.system('cls')
 Questionnaire.from_json_data(questionnaire_data).lancer()
 
 print()
