@@ -1,23 +1,4 @@
-# PROJET QUESTIONNAIRE V3 : POO
-#
-# - Pratiquer sur la POO
-# - Travailler sur du code existant
-# - Mener un raisonnement
-#
-# -> Définir les entitées (données, actions)
-#
-# Question
-#    - titre       - str
-#    - choix       - (str)
-#    - bonne_reponse   - str
-#
-#    - poser()  -> bool
-#
-# Questionnaire
-#    - questions      - (Question)
-#
-#    - lancer()
-#
+import json
 
 class Question:
     def __init__(self, titre, choix, bonne_reponse):
@@ -25,9 +6,13 @@ class Question:
         self.choix = choix
         self.bonne_reponse = bonne_reponse
 
-    def FromData(data):
-        # ....
-        q = Question(data[2], data[0], data[1])
+    def FromJsonData(data):
+
+        choix = [i[0] for i in data['choix'] ]
+        bonne_reponse = [i[0] for i in data['choix'] if i[1]]
+        if len(bonne_reponse) != 1:
+            return None
+        q = Question(data['titre'], choix , bonne_reponse[0])
         return q
 
     def poser(self):
@@ -39,7 +24,7 @@ class Question:
         print()
         resultat_response_correcte = False
         reponse_int = Question.demander_reponse_numerique_utlisateur(1, len(self.choix))
-        if self.choix[reponse_int-1].lower() == self.bonne_reponse.lower():
+        if self.choix[(reponse_int-1)] == self.bonne_reponse:
             print("Bonne réponse")
             resultat_response_correcte = True
         else:
@@ -72,28 +57,17 @@ class Questionnaire:
         print("Score final :", score, "sur", len(self.questions))
         return score
 
+#Charger un fichier JSON
+filename = "cinema_starwars_debutant.json"
+file = open(filename, "r")
+json_data = file.read()
+file.close()
 
-"""questionnaire = (
-    ("Quelle est la capitale de la France ?", ("Marseille", "Nice", "Paris", "Nantes", "Lille"), "Paris"), 
-    ("Quelle est la capitale de l'Italie ?", ("Rome", "Venise", "Pise", "Florence"), "Rome"),
-    ("Quelle est la capitale de la Belgique ?", ("Anvers", "Bruxelles", "Bruges", "Liège"), "Bruxelles")
-                )
+Questionnaire_data = json.loads(json_data) #  On transforme le fichier json en un dictionnaire python(déserialiser)
 
-lancer_questionnaire(questionnaire)"""
+Questionnaire_data_question = Questionnaire_data["questions"]
 
-# q1 = Question("Quelle est la capitale de la France ?", ("Marseille", "Nice", "Paris", "Nantes", "Lille"), "Paris")
-# q1.poser()
-
-# data = (("Marseille", "Nice", "Paris", "Nantes", "Lille"), "Paris", "Quelle est la capitale de la France ?")
-# q = Question.FromData(data)
-# print(q.__dict__)
-
-Questionnaire(
-    (
-    Question("Quelle est la capitale de la France ?", ("Marseille", "Nice", "Paris", "Nantes", "Lille"), "Paris"), 
-    Question("Quelle est la capitale de l'Italie ?", ("Rome", "Venise", "Pise", "Florence"), "Rome"),
-    Question("Quelle est la capitale de la Belgique ?", ("Anvers", "Bruxelles", "Bruges", "Liège"), "Bruxelles")
-    )
-).lancer()
+q = Question.FromJsonData(Questionnaire_data_question[0])
+q.poser()
 
 
